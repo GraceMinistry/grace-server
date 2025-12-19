@@ -151,7 +151,7 @@ socket.on("join-room", async (roomId: string) => {
             messageId,
             userId,
             emoji,
-            action: "removed",
+            action: "removed", 
           });
         } else {
           // If different emoji, update it
