@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const cors_1 = __importDefault(require("cors"));
+const prisma_1 = require("./prisma");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 const httpServer = (0, http_1.createServer)(app);
@@ -22,11 +23,29 @@ io.on("connection", (socket) => {
         rooms.get(roomId).add(socket.id);
         socket.join(roomId);
     });
-    socket.on("send-message", ({ roomId, message }) => {
+    socket.on("send-message", async ({ roomId, message }) => {
+        // 1️⃣ Emit immediately (NO UI delay)
         io.to(roomId).emit("receive-message", {
             socketId: socket.id,
             message,
         });
+        // 2️⃣ Persist in DB (async, safe)
+        try {
+            await prisma_1.prisma.message.create({
+                data: {
+                    id: message.id,
+                    roomId,
+                    text: message.text,
+                    senderId: message.sender.id,
+                    senderName: message.sender.name,
+                    senderAvatar: message.sender.avatarUrl,
+                    replyToId: message.replyTo?.id,
+                },
+            });
+        }
+        catch (err) {
+            console.error("❌ Failed to save message:", err);
+        }
     });
     socket.on("message-read", ({ roomId, messageId }) => {
         socket.to(roomId).emit("message-read", {
@@ -48,12 +67,35 @@ io.on("connection", (socket) => {
     socket.on("pin-message", ({ roomId, message }) => {
         socket.to(roomId).emit("pin-message", message);
     });
-    socket.on("message-react", ({ roomId, messageId, emoji, userId }) => {
-        io.to(roomId).emit("message-react", {
-            messageId,
-            emoji,
-            userId,
+    socket.on("message-react", async ({ roomId, messageId, emoji, userId }) => {
+        // Toggle logic (one reaction per user)
+        const existing = await prisma_1.prisma.reaction.findUnique({
+            where: {
+                messageId_userId: {
+                    messageId,
+                    userId,
+                },
+            },
         });
+        if (existing) {
+            await prisma_1.prisma.reaction.delete({
+                where: { id: existing.id },
+            });
+            io.to(roomId).emit("message-react-removed", {
+                messageId,
+                userId,
+            });
+        }
+        else {
+            const reaction = await prisma_1.prisma.reaction.create({
+                data: {
+                    messageId,
+                    userId,
+                    emoji,
+                },
+            });
+            io.to(roomId).emit("message-react", reaction);
+        }
     });
     socket.on("leave-room", (roomId) => {
         rooms.get(roomId)?.delete(socket.id);
@@ -71,7 +113,6 @@ io.on("connection", (socket) => {
     });
 });
 const PORT = process.env.PORT || 4000;
-
 httpServer.listen(PORT, () => {
-  console.log(`🚀 Socket.IO server running on port ${PORT}`);
+    console.log(`🚀 Socket.IO server running on port ${PORT}`);
 });
