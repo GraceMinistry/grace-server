@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider   = "prisma-client-js"
+  output     = "../generated/prisma"
+  engineType      = "wasm"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+
+model Message {
+  id        String   @id @default(uuid())
+  roomId    String
+  text      String
+  createdAt DateTime @default(now())
+
+  senderId   String
+  senderName String
+  senderAvatar String?
+
+  replyToId String?
+  replyTo   Message? @relation("Reply", fields: [replyToId], references: [id])
+  replies   Message[] @relation("Reply")
+
+  reactions Reaction[]
+  pinned    Boolean @default(false)
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  messageId String
+  userId    String
+  emoji     String
+
+  message   Message @relation(fields: [messageId], references: [id])
+
+  @@unique([messageId, userId])
+}
