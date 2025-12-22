@@ -1,13 +1,13 @@
 import { createMediasoupWorker } from "./worker";
 
-let router: any;
+export let audioRouter: any; 
 
 export async function createAudioRouter() {
-  if (router) return router;
+  if (audioRouter) return audioRouter;
 
   const worker = await createMediasoupWorker();
 
-  router = await worker.createRouter({
+  audioRouter = await worker.createRouter({
     mediaCodecs: [
       {
         kind: "audio",
@@ -19,6 +19,5 @@ export async function createAudioRouter() {
   });
 
   console.log("🔊 Audio router created");
-  return router;
+  return audioRouter;
 }
-
