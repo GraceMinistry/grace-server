@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import { prisma } from "./prisma";
+import { createAudioRouter } from "./mediasoup/router";
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,11 @@ const io = new Server(httpServer, {
 });
 
 const rooms = new Map<string, Set<string>>();
+
+// ✅ BOOTSTRAP MEDIASOUP ON SERVER START
+(async () => {
+  await createAudioRouter();
+})();
 
 io.on("connection", (socket) => {
   console.log("✅ user connected:", socket.id);
