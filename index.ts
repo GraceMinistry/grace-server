@@ -4,7 +4,16 @@ import { Server } from "socket.io";
 import cors from "cors";
 import { prisma } from "./prisma";
 import { createAudioRouter, audioRouter } from "./mediasoup/router";
-import { getOrCreateRoom, createWebRtcTransport, removePeerFromRoom } from "./mediasoup/rooms";
+import {
+  getOrCreateRoom,
+  createWebRtcTransport,
+  removePeerFromRoom,
+} from "./mediasoup/rooms";
+import type {
+  Consumer,
+  Producer,
+  WebRtcTransport,
+} from "mediasoup/node/lib/types";
 
 const app = express();
 app.use(cors());
@@ -23,16 +32,13 @@ const io = new Server(httpServer, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
   console.log("✅ user connected:", socket.id);
 
-  /* =====================================================
-      🚀 THE UNIFIED JOIN (Fixes Chat + Media)
-  ===================================================== */
-  
-  socket.on("join-room", async (roomId: string) => {
-    // 1. Join Socket.io room immediately for CHAT
-    socket.join(roomId);
-    console.log(`💬 User ${socket.id} joined Chat Room: ${roomId}`);
+  /* =========================
+     CHAT
+  ========================= */
 
-    // 2. Fetch Chat History (Protected from DB crash)
+  socket.on("join-room", async (roomId: string) => {
+    socket.join(roomId);
+
     try {
       const history = await prisma.message.findMany({
         where: { roomId },
@@ -40,63 +46,38 @@ io.on("connection", (socket) => {
         include: { reactions: true },
       });
 
-      const formattedHistory = history.map((msg: any) => {
-        const reactionsGrouped: Record<string, string[]> = {};
-        msg.reactions.forEach((r: any) => {
-          if (!reactionsGrouped[r.emoji]) reactionsGrouped[r.emoji] = [];
-          reactionsGrouped[r.emoji].push(r.userId);
-        });
-
-        return {
+      socket.emit(
+        "chat-history",
+        history.map((msg: any) => ({
           socketId: "system",
           message: {
             id: msg.id,
             text: msg.text,
             createdAt: msg.createdAt.getTime(),
-            sender: { id: msg.senderId, name: msg.senderName, avatarUrl: msg.senderAvatar },
-            replyToId: msg.replyToId,
-            reactions: reactionsGrouped,
+            sender: {
+              id: msg.senderId,
+              name: msg.senderName,
+              avatarUrl: msg.senderAvatar,
+            },
             pinned: msg.pinned,
+            reactions: msg.reactions.reduce((acc: any, r: any) => {
+              acc[r.emoji] ??= [];
+              acc[r.emoji].push(r.userId);
+              return acc;
+            }, {}),
           },
-        };
-      });
-      socket.emit("chat-history", formattedHistory);
-    } catch (err) {
-      console.error("❌ DB Down, history empty");
+        }))
+      );
+    } catch {
       socket.emit("chat-history", []);
     }
   });
 
-  // This is the specific Mediasoup join (Keep this separate for the Device handshake)
-  socket.on("join-mediasoup-room", async ({ roomId, rtpCapabilities }, callback) => {
-    try {
-      const room = await getOrCreateRoom(roomId, audioRouter);
-      
-      // Ensure they are in the Socket.io room too just in case
-      socket.join(roomId); 
-
-      room.peers.set(socket.id, {
-        socketId: socket.id,
-        transports: new Map(),
-        producers: new Map(),
-        consumers: new Map(),
-        rtpCapabilities,
-      });
-      
-      console.log(`🎧 Mediasoup state ready for ${socket.id} in ${roomId}`);
-      callback({ success: true });
-    } catch (err) {
-      callback({ error: "Failed to join mediasoup room" });
-    }
-  });
-
-  /* =====================================================
-      💬 CHAT SENDING LOGIC (Fixed to use io.to(roomId))
-  ===================================================== */
-
   socket.on("send-message", async ({ roomId, message }) => {
-    // This sends the message to everyone who called socket.join(roomId)
-    io.to(roomId).emit("receive-message", { socketId: socket.id, message });
+    io.to(roomId).emit("receive-message", {
+      socketId: socket.id,
+      message,
+    });
 
     try {
       await prisma.message.create({
@@ -110,66 +91,191 @@ io.on("connection", (socket) => {
           createdAt: new Date(message.createdAt),
         },
       });
-    } catch (err) {
-      console.error("❌ Message not saved to DB");
-    }
+    } catch {}
   });
 
-  /* =====================================================
-      🚀 MEDIASOUP TRANSPORTS (Keep these)
-  ===================================================== */
+  /* =========================
+     MEDIASOUP
+  ========================= */
 
-  socket.on("get-rtp-capabilities", async ({ roomId }, callback) => {
-    try {
+  socket.on("get-rtp-capabilities", async ({ roomId }, cb) => {
+    const room = await getOrCreateRoom(roomId, audioRouter);
+    cb({ rtpCapabilities: room.router.rtpCapabilities });
+  });
+
+  socket.on("join-mediasoup-room", async ({ roomId, rtpCapabilities }, cb) => {
+    const room = await getOrCreateRoom(roomId, audioRouter);
+    socket.join(roomId);
+
+    room.peers.set(socket.id, {
+      socketId: socket.id,
+      transports: new Map(),
+      producers: new Map(),
+      consumers: new Map(),
+      rtpCapabilities,
+    });
+
+    const existingProducers: string[] = [];
+    for (const [peerId, peer] of room.peers) {
+      if (peerId !== socket.id) {
+        peer.producers.forEach((p) => existingProducers.push(p.id));
+      }
+    }
+
+    console.log(`🎧 Mediasoup ready for ${socket.id} in ${roomId}`);
+    cb({ success: true, existingProducers });
+  });
+
+  socket.on("create-webrtc-transport", async ({ roomId, direction }, cb) => {
+    const room = await getOrCreateRoom(roomId, audioRouter);
+    const transport = await createWebRtcTransport(room.router);
+
+    transport.appData.direction = direction;
+
+    room.peers.get(socket.id)?.transports.set(transport.id, transport);
+
+    cb({
+      params: {
+        id: transport.id,
+        iceParameters: transport.iceParameters,
+        iceCandidates: transport.iceCandidates,
+        dtlsParameters: transport.dtlsParameters,
+      },
+    });
+  });
+
+  socket.on(
+    "connect-transport",
+    async ({ roomId, transportId, dtlsParameters }, cb) => {
       const room = await getOrCreateRoom(roomId, audioRouter);
-      callback({ rtpCapabilities: room.router.rtpCapabilities });
-    } catch (err) {
-      callback({ error: "Failed" });
+      const transport = room.peers.get(socket.id)?.transports.get(transportId);
+
+      if (!transport) return cb({ error: "Transport not found" });
+
+      await transport.connect({ dtlsParameters });
+      cb({ success: true });
     }
-  });
+  );
 
-  socket.on("create-webrtc-transport", async ({ roomId }, callback) => {
-    try {
-      const room = await getOrCreateRoom(roomId, audioRouter);
-      const transport = await createWebRtcTransport(room.router);
-      const peer = room.peers.get(socket.id);
-      if (peer) peer.transports.set(transport.id, transport);
+  /* =========================
+     PRODUCE
+  ========================= */
 
-      callback({
-        params: {
-          id: transport.id,
-          iceParameters: transport.iceParameters,
-          iceCandidates: transport.iceCandidates,
-          dtlsParameters: transport.dtlsParameters,
-        },
-      });
-    } catch (err: any) {
-      callback({ error: err.message });
-    }
-  });
-
-  socket.on("connect-transport", async ({ roomId, transportId, dtlsParameters }, callback) => {
-    try {
+  socket.on(
+    "produce",
+    async ({ roomId, transportId, kind, rtpParameters }, cb) => {
       const room = await getOrCreateRoom(roomId, audioRouter);
       const peer = room.peers.get(socket.id);
       const transport = peer?.transports.get(transportId);
-      if (transport) {
-        await transport.connect({ dtlsParameters });
-        callback({ success: true });
+
+      if (kind !== "audio") {
+        return cb({ error: "Only audio is allowed" });
       }
-    } catch (err: any) {
-      callback({ error: err.message });
+
+      if (!transport) return cb({ error: "No transport" });
+
+      const producer = await transport.produce({
+        kind,
+        rtpParameters,
+        appData: { media: "audio" },
+      });
+
+      peer!.producers.set(producer.id, producer);
+
+      socket.to(roomId).emit("new-producer", { producerId: producer.id });
+      console.log(`🎤 Audio producer ${producer.id} from ${socket.id}`);
+
+
+      cb({ id: producer.id });
     }
+  );
+
+  /* =========================
+     CONSUME (FIXED)
+  ========================= */
+
+/* =========================
+    CONSUME (FIXED)
+========================= */
+socket.on("consume", async ({ roomId, producerId, rtpCapabilities }, cb) => {
+  try {
+    const room = await getOrCreateRoom(roomId, audioRouter);
+    const peer = room.peers.get(socket.id);
+    if (!peer) throw new Error("Peer not found");
+
+    // ✅ FIX: Specifically find the transport meant for receiving
+    const transport = Array.from(peer.transports.values()).find(
+      (t) => t.appData.direction === "recv"
+    );
+
+    if (!transport) throw new Error("No receive transport found");
+
+    if (!room.router.canConsume({ producerId, rtpCapabilities })) {
+      return cb({ error: "Cannot consume" });
+    }
+
+    const consumer = await transport.consume({
+      producerId,
+      rtpCapabilities,
+      paused: true,
+    });
+
+    peer.consumers.set(consumer.id, consumer);
+
+    cb({
+      id: consumer.id,
+      producerId,
+      kind: consumer.kind,
+      rtpParameters: consumer.rtpParameters,
+    });
+  } catch (err: any) {
+    cb({ error: err.message });
+  }
+});
+
+  socket.on("resume-consumer", async ({ roomId, consumerId }) => {
+    const room = await getOrCreateRoom(roomId, audioRouter);
+    const consumer = room.peers.get(socket.id)?.consumers.get(consumerId);
+    await consumer?.resume();
   });
 
-  /* =====================================================
-      🧹 CLEANUP
-  ===================================================== */
+  /* =========================
+     CLEANUP
+  ========================= */
 
   socket.on("disconnecting", () => {
     for (const roomId of socket.rooms) {
-      if (roomId !== socket.id) {
-        removePeerFromRoom(roomId, socket.id);
+      if (roomId === socket.id) continue;
+
+      const room = audioRouter.rooms?.get(roomId);
+      if (!room) continue;
+
+      const peer = room.peers.get(socket.id);
+      if (!peer) continue;
+
+      // 🔥 CLOSE CONSUMERS
+      peer.consumers.forEach((consumer: Consumer) => {
+        consumer.close();
+      });
+
+      // 🔥 CLOSE PRODUCERS
+      peer.producers.forEach((producer: Producer) => {
+        producer.close();
+      });
+
+      // 🔥 CLOSE TRANSPORTS
+      peer.transports.forEach((transport: WebRtcTransport) => {
+        transport.close();
+      });
+
+      room.peers.delete(socket.id);
+
+      console.log(`🗑️ Mediasoup state cleaned for peer ${socket.id}`);
+
+      if (room.peers.size === 0) {
+        room.router.close();
+        audioRouter.rooms.delete(roomId);
+        console.log(`🏠 Room ${roomId} fully closed`);
       }
     }
   });
