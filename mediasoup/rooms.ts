@@ -53,7 +53,7 @@ export const createWebRtcTransport = async (router: Router) => {
 
 /**
  * PHASE 7 Cleanup Helper
- * Closes transports and removes peer from the room state.
+ * Closes transports, producers, consumers and removes peer from the room state.
  */
 export const removePeerFromRoom = (roomId: string, socketId: string) => {
   const room = rooms.get(roomId);
@@ -61,14 +61,22 @@ export const removePeerFromRoom = (roomId: string, socketId: string) => {
 
   const peer = room.peers.get(socketId);
   if (peer) {
-    // Close all active transports for this user
+    // Close all consumers
+    peer.consumers.forEach((consumer) => consumer.close());
+    
+    // Close all producers
+    peer.producers.forEach((producer) => producer.close());
+    
+    // Close all transports
     peer.transports.forEach((transport) => transport.close());
+    
     room.peers.delete(socketId);
     console.log(`🗑️ Mediasoup state cleaned for peer ${socketId}`);
   }
 
-  // If room is empty, delete it
+  // If room is empty, close router and delete room
   if (room.peers.size === 0) {
+    room.router.close();
     rooms.delete(roomId);
     console.log(`🏠 Room ${roomId} fully closed`);
   }

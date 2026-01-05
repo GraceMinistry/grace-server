@@ -9,11 +9,6 @@ import {
   createWebRtcTransport,
   removePeerFromRoom,
 } from "./mediasoup/rooms";
-import type {
-  Consumer,
-  Producer,
-  WebRtcTransport,
-} from "mediasoup/node/lib/types";
 
 const app = express();
 app.use(cors());
@@ -246,37 +241,7 @@ socket.on("consume", async ({ roomId, producerId, rtpCapabilities }, cb) => {
   socket.on("disconnecting", () => {
     for (const roomId of socket.rooms) {
       if (roomId === socket.id) continue;
-
-      const room = audioRouter.rooms?.get(roomId);
-      if (!room) continue;
-
-      const peer = room.peers.get(socket.id);
-      if (!peer) continue;
-
-      // 🔥 CLOSE CONSUMERS
-      peer.consumers.forEach((consumer: Consumer) => {
-        consumer.close();
-      });
-
-      // 🔥 CLOSE PRODUCERS
-      peer.producers.forEach((producer: Producer) => {
-        producer.close();
-      });
-
-      // 🔥 CLOSE TRANSPORTS
-      peer.transports.forEach((transport: WebRtcTransport) => {
-        transport.close();
-      });
-
-      room.peers.delete(socket.id);
-
-      console.log(`🗑️ Mediasoup state cleaned for peer ${socket.id}`);
-
-      if (room.peers.size === 0) {
-        room.router.close();
-        audioRouter.rooms.delete(roomId);
-        console.log(`🏠 Room ${roomId} fully closed`);
-      }
+      removePeerFromRoom(roomId, socket.id);
     }
   });
 });
