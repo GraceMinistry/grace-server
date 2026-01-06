@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
 
   socket.on("get-rtp-capabilities", async ({ roomId }, cb) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       cb({ rtpCapabilities: room.router.rtpCapabilities });
     } catch (err: any) {
       console.error("Error getting RTP capabilities:", err);
@@ -117,15 +117,23 @@ io.on("connection", (socket) => {
           `🔍 JOIN REQUEST - User: ${userName}, Image: ${userImageUrl}, Creator: ${isCreator}`
         );
 
-        const room = await getOrCreateRoom(roomId, mediaRouter);
+        const room = await getOrCreateRoom(roomId);
         socket.join(roomId);
+
+        // ✅ If room is empty, first person becomes host automatically
+        const isFirstPerson = room.peers.size === 0;
+        const shouldBeHost = isCreator === true || isFirstPerson;
+
+        console.log(
+          `🎯 isCreator: ${isCreator}, isFirstPerson: ${isFirstPerson}, shouldBeHost: ${shouldBeHost}`
+        );
 
         // ✅ CRITICAL: Create peer with user info from client
         room.peers.set(socket.id, {
           socketId: socket.id,
           name: userName || "User " + socket.id.slice(0, 4),
           imageUrl: userImageUrl || null,
-          isHost: isCreator || false,
+          isHost: shouldBeHost,
           transports: new Map(),
           producers: new Map(),
           consumers: new Map(),
@@ -165,7 +173,7 @@ io.on("connection", (socket) => {
 
   socket.on("create-webrtc-transport", async ({ roomId, direction }, cb) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       const transport = await createWebRtcTransport(room.router);
 
       transport.appData.direction = direction;
@@ -218,7 +226,7 @@ io.on("connection", (socket) => {
     "produce",
     async ({ roomId, transportId, kind, rtpParameters, appData }, cb) => {
       try {
-        const room = await getOrCreateRoom(roomId, mediaRouter);
+        const room = await getOrCreateRoom(roomId);
         const peer = room.peers.get(socket.id);
         const transport = peer?.transports.get(transportId);
 
@@ -268,7 +276,7 @@ io.on("connection", (socket) => {
 ========================= */
   socket.on("consume", async ({ roomId, producerId, rtpCapabilities }, cb) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       const peer = room.peers.get(socket.id);
       if (!peer) throw new Error("Peer not found");
 
@@ -315,7 +323,7 @@ io.on("connection", (socket) => {
 
   socket.on("resume-consumer", async ({ roomId, consumerId }, cb) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       const consumer = room.peers.get(socket.id)?.consumers.get(consumerId);
 
       if (!consumer) {
@@ -373,7 +381,7 @@ io.on("connection", (socket) => {
 
   socket.on("make-host", async ({ roomId, participantId }) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       const peer = room.peers.get(participantId);
 
       if (!peer) return;
@@ -398,7 +406,7 @@ io.on("connection", (socket) => {
 
   socket.on("remove-host", async ({ roomId, participantId }) => {
     try {
-      const room = await getOrCreateRoom(roomId, mediaRouter);
+      const room = await getOrCreateRoom(roomId);
       const peer = room.peers.get(participantId);
 
       if (!peer) return;
@@ -434,9 +442,7 @@ io.on("connection", (socket) => {
         removePeerFromRoom(roomId, socket.id);
 
         // Get room if it still exists (might be deleted if last peer)
-        const room = await getOrCreateRoom(roomId, mediaRouter).catch(
-          () => null
-        );
+        const room = await getOrCreateRoom(roomId).catch(() => null);
         if (!room) continue;
 
         // ✅ Update participant list with ALL user info

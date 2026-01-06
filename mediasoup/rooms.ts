@@ -1,4 +1,5 @@
 import { Router, WebRtcTransport } from "mediasoup/node/lib/types";
+import { createMediasoupWorker } from "./worker";
 
 export type Peer = {
   socketId: string;
@@ -20,15 +21,77 @@ const rooms = new Map<string, Room>();
 
 export const getOrCreateRoom = async (
   roomId: string,
-  router: Router
+  router?: Router
 ): Promise<Room> => {
-  if (!rooms.has(roomId)) {
-    rooms.set(roomId, {
-      router,
-      peers: new Map(),
+  const existingRoom = rooms.get(roomId);
+
+  // Check if room exists and router is still open
+  if (existingRoom && !existingRoom.router.closed) {
+    return existingRoom;
+  }
+
+  // If room doesn't exist or router is closed, create new room with new router
+  if (!router || router.closed) {
+    console.log(`🏗️ Creating new router for room ${roomId}`);
+    const worker = await createMediasoupWorker();
+    router = await worker.createRouter({
+      mediaCodecs: [
+        {
+          kind: "audio",
+          mimeType: "audio/opus",
+          clockRate: 48000,
+          channels: 2,
+        },
+        {
+          kind: "video",
+          mimeType: "video/VP8",
+          clockRate: 90000,
+          parameters: {
+            "x-google-start-bitrate": 1000,
+          },
+        },
+        {
+          kind: "video",
+          mimeType: "video/VP9",
+          clockRate: 90000,
+          parameters: {
+            "profile-id": 2,
+            "x-google-start-bitrate": 1000,
+          },
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "4d0032",
+            "level-asymmetry-allowed": 1,
+            "x-google-start-bitrate": 1000,
+          },
+        },
+        {
+          kind: "video",
+          mimeType: "video/h264",
+          clockRate: 90000,
+          parameters: {
+            "packetization-mode": 1,
+            "profile-level-id": "42e01f",
+            "level-asymmetry-allowed": 1,
+            "x-google-start-bitrate": 1000,
+          },
+        },
+      ],
     });
   }
-  return rooms.get(roomId)!;
+
+  const room = {
+    router,
+    peers: new Map(),
+  };
+
+  rooms.set(roomId, room);
+  return room;
 };
 
 export const getRoom = (roomId: string) => rooms.get(roomId);
