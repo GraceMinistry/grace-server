@@ -837,7 +837,10 @@ io.on("connection", (socket) => {
         // Track producer lifecycle
         producer.on("score", (score) => {
           if (score.length > 0 && score[0].score < 5) {
-            console.warn(`⚠️ Producer ${producer.id} low quality score:`, score[0].score);
+            console.warn(
+              `⚠️ Producer ${producer.id} low quality score:`,
+              score[0].score
+            );
           }
         });
 
@@ -1004,8 +1007,10 @@ io.on("connection", (socket) => {
 
   socket.on("resume-consumer", async ({ roomId, consumerId }, cb) => {
     try {
-      console.log(`▶️ Resume consumer request for ${consumerId} from ${socket.id}`);
-      
+      console.log(
+        `▶️ Resume consumer request for ${consumerId} from ${socket.id}`
+      );
+
       const room = await getOrCreateRoom(roomId);
       const consumer = room.peers.get(socket.id)?.consumers.get(consumerId);
 
@@ -1019,7 +1024,9 @@ io.on("connection", (socket) => {
       }
 
       await consumer.resume();
-      console.log(`✅ Consumer ${consumerId} resumed successfully (kind: ${consumer.kind})`);
+      console.log(
+        `✅ Consumer ${consumerId} resumed successfully (kind: ${consumer.kind})`
+      );
       cb?.({ success: true });
     } catch (err: any) {
       console.error("❌ Error resuming consumer:", err);
