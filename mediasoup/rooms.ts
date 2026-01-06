@@ -2,6 +2,9 @@ import { Router, WebRtcTransport } from "mediasoup/node/lib/types";
 
 export type Peer = {
   socketId: string;
+  name?: string;
+  imageUrl?: string | null;
+  isHost?: boolean;
   transports: Map<string, WebRtcTransport>; // Specific type instead of any
   producers: Map<string, any>;
   consumers: Map<string, any>;
@@ -12,7 +15,7 @@ export type Room = {
   router: Router;
   peers: Map<string, Peer>;
 };
- 
+
 const rooms = new Map<string, Room>();
 
 export const getOrCreateRoom = async (
@@ -56,28 +59,56 @@ export const createWebRtcTransport = async (router: Router) => {
  * Closes transports, producers, consumers and removes peer from the room state.
  */
 export const removePeerFromRoom = (roomId: string, socketId: string) => {
-  const room = rooms.get(roomId);
-  if (!room) return;
+  try {
+    const room = rooms.get(roomId);
+    if (!room) return;
 
-  const peer = room.peers.get(socketId);
-  if (peer) {
-    // Close all consumers
-    peer.consumers.forEach((consumer) => consumer.close());
-    
-    // Close all producers
-    peer.producers.forEach((producer) => producer.close());
-    
-    // Close all transports
-    peer.transports.forEach((transport) => transport.close());
-    
-    room.peers.delete(socketId);
-    console.log(`🗑️ Mediasoup state cleaned for peer ${socketId}`);
-  }
+    const peer = room.peers.get(socketId);
+    if (peer) {
+      // Close all consumers safely
+      peer.consumers.forEach((consumer) => {
+        try {
+          if (!consumer.closed) consumer.close();
+        } catch (err) {
+          console.error("Error closing consumer:", err);
+        }
+      });
 
-  // If room is empty, close router and delete room
-  if (room.peers.size === 0) {
-    room.router.close();
-    rooms.delete(roomId);
-    console.log(`🏠 Room ${roomId} fully closed`);
+      // Close all producers safely
+      peer.producers.forEach((producer) => {
+        try {
+          if (!producer.closed) producer.close();
+        } catch (err) {
+          console.error("Error closing producer:", err);
+        }
+      });
+
+      // Close all transports safely
+      peer.transports.forEach((transport) => {
+        try {
+          if (!transport.closed) transport.close();
+        } catch (err) {
+          console.error("Error closing transport:", err);
+        }
+      });
+
+      room.peers.delete(socketId);
+      console.log(`🗑️ Mediasoup state cleaned for peer ${socketId}`);
+    }
+
+    // If room is empty, close router and delete room
+    if (room.peers.size === 0) {
+      try {
+        if (!room.router.closed) {
+          room.router.close();
+        }
+      } catch (err) {
+        console.error("Error closing router:", err);
+      }
+      rooms.delete(roomId);
+      console.log(`🏠 Room ${roomId} fully closed`);
+    }
+  } catch (err) {
+    console.error("Error in removePeerFromRoom:", err);
   }
 };
