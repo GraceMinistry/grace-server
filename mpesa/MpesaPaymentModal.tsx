@@ -20,7 +20,9 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
   const [account, setAccount] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(
+    null
+  );
 
   const accountOptions = [
     { value: "ROOM_PAYMENT", label: "Room Payment" },
@@ -51,13 +53,13 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
       const data = await response.json();
 
       if (data.success) {
-        setTransactionId(data.data.transactionId);
+        setCheckoutRequestId(data.data.checkoutRequestId);
         alert(
           "Payment request sent! Please check your phone and enter your M-Pesa PIN."
         );
 
         // Start checking payment status
-        setTimeout(() => checkPaymentStatus(data.data.transactionId), 5000);
+        setTimeout(() => checkPaymentStatus(data.data.checkoutRequestId), 5000);
       } else {
         onError?.(data.message || "Payment initiation failed");
         alert(data.message || "Payment initiation failed");
@@ -70,7 +72,7 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
     }
   };
 
-  const checkPaymentStatus = async (txnId: string) => {
+  const checkPaymentStatus = async (checkoutReqId: string) => {
     setCheckingStatus(true);
     let attempts = 0;
     const maxAttempts = 12; // Check for 1 minute (12 * 5 seconds)
@@ -78,39 +80,37 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
     const checkStatus = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/mpesa/status/${txnId}`
+          `http://localhost:8080/api/mpesa/status/${checkoutReqId}`
         );
         const data = await response.json();
 
-        if (data.success && data.data.status === "SUCCESS") {
-          onSuccess?.(txnId);
+        if (data.status === "SUCCESS") {
+          onSuccess?.(data.data.id);
           alert(`Payment successful! Receipt: ${data.data.mpesaReceiptNumber}`);
           setCheckingStatus(false);
           onClose?.();
           return;
         }
 
-        if (data.data.status === "FAILED" || data.data.status === "CANCELLED") {
-          onError?.(data.data.resultDesc || "Payment failed");
-          alert(
-            "Payment " +
-              data.data.status.toLowerCase() +
-              ": " +
-              data.data.resultDesc
-          );
+        if (data.status === "NOT_FOUND") {
+          onError?.(data.message || "Payment not completed");
+          alert(data.message || "Payment failed or was cancelled");
           setCheckingStatus(false);
           return;
         }
 
-        // Still pending, check again
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(checkStatus, 5000);
-        } else {
-          setCheckingStatus(false);
-          alert(
-            "Payment verification timeout. Please check transaction history."
-          );
+        if (data.status === "PENDING") {
+          // Still waiting - check again
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(checkStatus, 5000);
+          } else {
+            setCheckingStatus(false);
+            alert(
+              "Payment verification timeout. Please check transaction history."
+            );
+          }
+          return;
         }
       } catch (error) {
         console.error("Error checking status:", error);
