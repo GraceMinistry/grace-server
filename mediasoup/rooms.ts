@@ -3,6 +3,7 @@ import { createMediasoupWorker } from "./worker";
 
 export type Peer = {
   socketId: string;
+  userId?: string; // Add userId field
   name?: string;
   imageUrl?: string | null;
   isHost?: boolean;

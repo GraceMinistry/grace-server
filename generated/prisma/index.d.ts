@@ -33,6 +33,11 @@ export type Room = $Result.DefaultSelection<Prisma.$RoomPayload>
  * 
  */
 export type RoomParticipant = $Result.DefaultSelection<Prisma.$RoomParticipantPayload>
+/**
+ * Model MpesaTransaction
+ * 
+ */
+export type MpesaTransaction = $Result.DefaultSelection<Prisma.$MpesaTransactionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -196,6 +201,16 @@ export class PrismaClient<
     * ```
     */
   get roomParticipant(): Prisma.RoomParticipantDelegate<ExtArgs>;
+
+  /**
+   * `prisma.mpesaTransaction`: Exposes CRUD operations for the **MpesaTransaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MpesaTransactions
+    * const mpesaTransactions = await prisma.mpesaTransaction.findMany()
+    * ```
+    */
+  get mpesaTransaction(): Prisma.MpesaTransactionDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -640,7 +655,8 @@ export namespace Prisma {
     Message: 'Message',
     Reaction: 'Reaction',
     Room: 'Room',
-    RoomParticipant: 'RoomParticipant'
+    RoomParticipant: 'RoomParticipant',
+    MpesaTransaction: 'MpesaTransaction'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -656,7 +672,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "message" | "reaction" | "room" | "roomParticipant"
+      modelProps: "message" | "reaction" | "room" | "roomParticipant" | "mpesaTransaction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -937,6 +953,76 @@ export namespace Prisma {
           count: {
             args: Prisma.RoomParticipantCountArgs<ExtArgs>
             result: $Utils.Optional<RoomParticipantCountAggregateOutputType> | number
+          }
+        }
+      }
+      MpesaTransaction: {
+        payload: Prisma.$MpesaTransactionPayload<ExtArgs>
+        fields: Prisma.MpesaTransactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MpesaTransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MpesaTransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          findFirst: {
+            args: Prisma.MpesaTransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MpesaTransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          findMany: {
+            args: Prisma.MpesaTransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>[]
+          }
+          create: {
+            args: Prisma.MpesaTransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          createMany: {
+            args: Prisma.MpesaTransactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MpesaTransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>[]
+          }
+          delete: {
+            args: Prisma.MpesaTransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          update: {
+            args: Prisma.MpesaTransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.MpesaTransactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MpesaTransactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MpesaTransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MpesaTransactionPayload>
+          }
+          aggregate: {
+            args: Prisma.MpesaTransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMpesaTransaction>
+          }
+          groupBy: {
+            args: Prisma.MpesaTransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MpesaTransactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MpesaTransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<MpesaTransactionCountAggregateOutputType> | number
           }
         }
       }
@@ -5032,6 +5118,1042 @@ export namespace Prisma {
 
 
   /**
+   * Model MpesaTransaction
+   */
+
+  export type AggregateMpesaTransaction = {
+    _count: MpesaTransactionCountAggregateOutputType | null
+    _avg: MpesaTransactionAvgAggregateOutputType | null
+    _sum: MpesaTransactionSumAggregateOutputType | null
+    _min: MpesaTransactionMinAggregateOutputType | null
+    _max: MpesaTransactionMaxAggregateOutputType | null
+  }
+
+  export type MpesaTransactionAvgAggregateOutputType = {
+    amount: Decimal | null
+    resultCode: number | null
+  }
+
+  export type MpesaTransactionSumAggregateOutputType = {
+    amount: Decimal | null
+    resultCode: number | null
+  }
+
+  export type MpesaTransactionMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    userName: string | null
+    phoneNumber: string | null
+    amount: Decimal | null
+    accountReference: string | null
+    merchantRequestId: string | null
+    checkoutRequestId: string | null
+    mpesaReceiptNumber: string | null
+    transactionDate: Date | null
+    resultCode: number | null
+    resultDesc: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MpesaTransactionMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    userName: string | null
+    phoneNumber: string | null
+    amount: Decimal | null
+    accountReference: string | null
+    merchantRequestId: string | null
+    checkoutRequestId: string | null
+    mpesaReceiptNumber: string | null
+    transactionDate: Date | null
+    resultCode: number | null
+    resultDesc: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MpesaTransactionCountAggregateOutputType = {
+    id: number
+    userId: number
+    userName: number
+    phoneNumber: number
+    amount: number
+    accountReference: number
+    merchantRequestId: number
+    checkoutRequestId: number
+    mpesaReceiptNumber: number
+    transactionDate: number
+    resultCode: number
+    resultDesc: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MpesaTransactionAvgAggregateInputType = {
+    amount?: true
+    resultCode?: true
+  }
+
+  export type MpesaTransactionSumAggregateInputType = {
+    amount?: true
+    resultCode?: true
+  }
+
+  export type MpesaTransactionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    userName?: true
+    phoneNumber?: true
+    amount?: true
+    accountReference?: true
+    merchantRequestId?: true
+    checkoutRequestId?: true
+    mpesaReceiptNumber?: true
+    transactionDate?: true
+    resultCode?: true
+    resultDesc?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MpesaTransactionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    userName?: true
+    phoneNumber?: true
+    amount?: true
+    accountReference?: true
+    merchantRequestId?: true
+    checkoutRequestId?: true
+    mpesaReceiptNumber?: true
+    transactionDate?: true
+    resultCode?: true
+    resultDesc?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MpesaTransactionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    userName?: true
+    phoneNumber?: true
+    amount?: true
+    accountReference?: true
+    merchantRequestId?: true
+    checkoutRequestId?: true
+    mpesaReceiptNumber?: true
+    transactionDate?: true
+    resultCode?: true
+    resultDesc?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MpesaTransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MpesaTransaction to aggregate.
+     */
+    where?: MpesaTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MpesaTransactions to fetch.
+     */
+    orderBy?: MpesaTransactionOrderByWithRelationInput | MpesaTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MpesaTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MpesaTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MpesaTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MpesaTransactions
+    **/
+    _count?: true | MpesaTransactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MpesaTransactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MpesaTransactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MpesaTransactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MpesaTransactionMaxAggregateInputType
+  }
+
+  export type GetMpesaTransactionAggregateType<T extends MpesaTransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateMpesaTransaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMpesaTransaction[P]>
+      : GetScalarType<T[P], AggregateMpesaTransaction[P]>
+  }
+
+
+
+
+  export type MpesaTransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MpesaTransactionWhereInput
+    orderBy?: MpesaTransactionOrderByWithAggregationInput | MpesaTransactionOrderByWithAggregationInput[]
+    by: MpesaTransactionScalarFieldEnum[] | MpesaTransactionScalarFieldEnum
+    having?: MpesaTransactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MpesaTransactionCountAggregateInputType | true
+    _avg?: MpesaTransactionAvgAggregateInputType
+    _sum?: MpesaTransactionSumAggregateInputType
+    _min?: MpesaTransactionMinAggregateInputType
+    _max?: MpesaTransactionMaxAggregateInputType
+  }
+
+  export type MpesaTransactionGroupByOutputType = {
+    id: string
+    userId: string
+    userName: string | null
+    phoneNumber: string
+    amount: Decimal
+    accountReference: string
+    merchantRequestId: string | null
+    checkoutRequestId: string | null
+    mpesaReceiptNumber: string | null
+    transactionDate: Date | null
+    resultCode: number | null
+    resultDesc: string | null
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    _count: MpesaTransactionCountAggregateOutputType | null
+    _avg: MpesaTransactionAvgAggregateOutputType | null
+    _sum: MpesaTransactionSumAggregateOutputType | null
+    _min: MpesaTransactionMinAggregateOutputType | null
+    _max: MpesaTransactionMaxAggregateOutputType | null
+  }
+
+  type GetMpesaTransactionGroupByPayload<T extends MpesaTransactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MpesaTransactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MpesaTransactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MpesaTransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], MpesaTransactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MpesaTransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    userName?: boolean
+    phoneNumber?: boolean
+    amount?: boolean
+    accountReference?: boolean
+    merchantRequestId?: boolean
+    checkoutRequestId?: boolean
+    mpesaReceiptNumber?: boolean
+    transactionDate?: boolean
+    resultCode?: boolean
+    resultDesc?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["mpesaTransaction"]>
+
+  export type MpesaTransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    userName?: boolean
+    phoneNumber?: boolean
+    amount?: boolean
+    accountReference?: boolean
+    merchantRequestId?: boolean
+    checkoutRequestId?: boolean
+    mpesaReceiptNumber?: boolean
+    transactionDate?: boolean
+    resultCode?: boolean
+    resultDesc?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["mpesaTransaction"]>
+
+  export type MpesaTransactionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    userName?: boolean
+    phoneNumber?: boolean
+    amount?: boolean
+    accountReference?: boolean
+    merchantRequestId?: boolean
+    checkoutRequestId?: boolean
+    mpesaReceiptNumber?: boolean
+    transactionDate?: boolean
+    resultCode?: boolean
+    resultDesc?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+
+  export type $MpesaTransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MpesaTransaction"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      userName: string | null
+      phoneNumber: string
+      amount: Prisma.Decimal
+      accountReference: string
+      merchantRequestId: string | null
+      checkoutRequestId: string | null
+      mpesaReceiptNumber: string | null
+      transactionDate: Date | null
+      resultCode: number | null
+      resultDesc: string | null
+      status: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["mpesaTransaction"]>
+    composites: {}
+  }
+
+  type MpesaTransactionGetPayload<S extends boolean | null | undefined | MpesaTransactionDefaultArgs> = $Result.GetResult<Prisma.$MpesaTransactionPayload, S>
+
+  type MpesaTransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<MpesaTransactionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: MpesaTransactionCountAggregateInputType | true
+    }
+
+  export interface MpesaTransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MpesaTransaction'], meta: { name: 'MpesaTransaction' } }
+    /**
+     * Find zero or one MpesaTransaction that matches the filter.
+     * @param {MpesaTransactionFindUniqueArgs} args - Arguments to find a MpesaTransaction
+     * @example
+     * // Get one MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MpesaTransactionFindUniqueArgs>(args: SelectSubset<T, MpesaTransactionFindUniqueArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one MpesaTransaction that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {MpesaTransactionFindUniqueOrThrowArgs} args - Arguments to find a MpesaTransaction
+     * @example
+     * // Get one MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MpesaTransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, MpesaTransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first MpesaTransaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionFindFirstArgs} args - Arguments to find a MpesaTransaction
+     * @example
+     * // Get one MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MpesaTransactionFindFirstArgs>(args?: SelectSubset<T, MpesaTransactionFindFirstArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first MpesaTransaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionFindFirstOrThrowArgs} args - Arguments to find a MpesaTransaction
+     * @example
+     * // Get one MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MpesaTransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, MpesaTransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more MpesaTransactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MpesaTransactions
+     * const mpesaTransactions = await prisma.mpesaTransaction.findMany()
+     * 
+     * // Get first 10 MpesaTransactions
+     * const mpesaTransactions = await prisma.mpesaTransaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mpesaTransactionWithIdOnly = await prisma.mpesaTransaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MpesaTransactionFindManyArgs>(args?: SelectSubset<T, MpesaTransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a MpesaTransaction.
+     * @param {MpesaTransactionCreateArgs} args - Arguments to create a MpesaTransaction.
+     * @example
+     * // Create one MpesaTransaction
+     * const MpesaTransaction = await prisma.mpesaTransaction.create({
+     *   data: {
+     *     // ... data to create a MpesaTransaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends MpesaTransactionCreateArgs>(args: SelectSubset<T, MpesaTransactionCreateArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many MpesaTransactions.
+     * @param {MpesaTransactionCreateManyArgs} args - Arguments to create many MpesaTransactions.
+     * @example
+     * // Create many MpesaTransactions
+     * const mpesaTransaction = await prisma.mpesaTransaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MpesaTransactionCreateManyArgs>(args?: SelectSubset<T, MpesaTransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MpesaTransactions and returns the data saved in the database.
+     * @param {MpesaTransactionCreateManyAndReturnArgs} args - Arguments to create many MpesaTransactions.
+     * @example
+     * // Create many MpesaTransactions
+     * const mpesaTransaction = await prisma.mpesaTransaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MpesaTransactions and only return the `id`
+     * const mpesaTransactionWithIdOnly = await prisma.mpesaTransaction.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MpesaTransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, MpesaTransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a MpesaTransaction.
+     * @param {MpesaTransactionDeleteArgs} args - Arguments to delete one MpesaTransaction.
+     * @example
+     * // Delete one MpesaTransaction
+     * const MpesaTransaction = await prisma.mpesaTransaction.delete({
+     *   where: {
+     *     // ... filter to delete one MpesaTransaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MpesaTransactionDeleteArgs>(args: SelectSubset<T, MpesaTransactionDeleteArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one MpesaTransaction.
+     * @param {MpesaTransactionUpdateArgs} args - Arguments to update one MpesaTransaction.
+     * @example
+     * // Update one MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MpesaTransactionUpdateArgs>(args: SelectSubset<T, MpesaTransactionUpdateArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more MpesaTransactions.
+     * @param {MpesaTransactionDeleteManyArgs} args - Arguments to filter MpesaTransactions to delete.
+     * @example
+     * // Delete a few MpesaTransactions
+     * const { count } = await prisma.mpesaTransaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MpesaTransactionDeleteManyArgs>(args?: SelectSubset<T, MpesaTransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MpesaTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MpesaTransactions
+     * const mpesaTransaction = await prisma.mpesaTransaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MpesaTransactionUpdateManyArgs>(args: SelectSubset<T, MpesaTransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MpesaTransaction.
+     * @param {MpesaTransactionUpsertArgs} args - Arguments to update or create a MpesaTransaction.
+     * @example
+     * // Update or create a MpesaTransaction
+     * const mpesaTransaction = await prisma.mpesaTransaction.upsert({
+     *   create: {
+     *     // ... data to create a MpesaTransaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MpesaTransaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MpesaTransactionUpsertArgs>(args: SelectSubset<T, MpesaTransactionUpsertArgs<ExtArgs>>): Prisma__MpesaTransactionClient<$Result.GetResult<Prisma.$MpesaTransactionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of MpesaTransactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionCountArgs} args - Arguments to filter MpesaTransactions to count.
+     * @example
+     * // Count the number of MpesaTransactions
+     * const count = await prisma.mpesaTransaction.count({
+     *   where: {
+     *     // ... the filter for the MpesaTransactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends MpesaTransactionCountArgs>(
+      args?: Subset<T, MpesaTransactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MpesaTransactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MpesaTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MpesaTransactionAggregateArgs>(args: Subset<T, MpesaTransactionAggregateArgs>): Prisma.PrismaPromise<GetMpesaTransactionAggregateType<T>>
+
+    /**
+     * Group by MpesaTransaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MpesaTransactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MpesaTransactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MpesaTransactionGroupByArgs['orderBy'] }
+        : { orderBy?: MpesaTransactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MpesaTransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMpesaTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MpesaTransaction model
+   */
+  readonly fields: MpesaTransactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MpesaTransaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MpesaTransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MpesaTransaction model
+   */ 
+  interface MpesaTransactionFieldRefs {
+    readonly id: FieldRef<"MpesaTransaction", 'String'>
+    readonly userId: FieldRef<"MpesaTransaction", 'String'>
+    readonly userName: FieldRef<"MpesaTransaction", 'String'>
+    readonly phoneNumber: FieldRef<"MpesaTransaction", 'String'>
+    readonly amount: FieldRef<"MpesaTransaction", 'Decimal'>
+    readonly accountReference: FieldRef<"MpesaTransaction", 'String'>
+    readonly merchantRequestId: FieldRef<"MpesaTransaction", 'String'>
+    readonly checkoutRequestId: FieldRef<"MpesaTransaction", 'String'>
+    readonly mpesaReceiptNumber: FieldRef<"MpesaTransaction", 'String'>
+    readonly transactionDate: FieldRef<"MpesaTransaction", 'DateTime'>
+    readonly resultCode: FieldRef<"MpesaTransaction", 'Int'>
+    readonly resultDesc: FieldRef<"MpesaTransaction", 'String'>
+    readonly status: FieldRef<"MpesaTransaction", 'String'>
+    readonly createdAt: FieldRef<"MpesaTransaction", 'DateTime'>
+    readonly updatedAt: FieldRef<"MpesaTransaction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MpesaTransaction findUnique
+   */
+  export type MpesaTransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter, which MpesaTransaction to fetch.
+     */
+    where: MpesaTransactionWhereUniqueInput
+  }
+
+  /**
+   * MpesaTransaction findUniqueOrThrow
+   */
+  export type MpesaTransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter, which MpesaTransaction to fetch.
+     */
+    where: MpesaTransactionWhereUniqueInput
+  }
+
+  /**
+   * MpesaTransaction findFirst
+   */
+  export type MpesaTransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter, which MpesaTransaction to fetch.
+     */
+    where?: MpesaTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MpesaTransactions to fetch.
+     */
+    orderBy?: MpesaTransactionOrderByWithRelationInput | MpesaTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MpesaTransactions.
+     */
+    cursor?: MpesaTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MpesaTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MpesaTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MpesaTransactions.
+     */
+    distinct?: MpesaTransactionScalarFieldEnum | MpesaTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * MpesaTransaction findFirstOrThrow
+   */
+  export type MpesaTransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter, which MpesaTransaction to fetch.
+     */
+    where?: MpesaTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MpesaTransactions to fetch.
+     */
+    orderBy?: MpesaTransactionOrderByWithRelationInput | MpesaTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MpesaTransactions.
+     */
+    cursor?: MpesaTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MpesaTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MpesaTransactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MpesaTransactions.
+     */
+    distinct?: MpesaTransactionScalarFieldEnum | MpesaTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * MpesaTransaction findMany
+   */
+  export type MpesaTransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter, which MpesaTransactions to fetch.
+     */
+    where?: MpesaTransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MpesaTransactions to fetch.
+     */
+    orderBy?: MpesaTransactionOrderByWithRelationInput | MpesaTransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MpesaTransactions.
+     */
+    cursor?: MpesaTransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MpesaTransactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MpesaTransactions.
+     */
+    skip?: number
+    distinct?: MpesaTransactionScalarFieldEnum | MpesaTransactionScalarFieldEnum[]
+  }
+
+  /**
+   * MpesaTransaction create
+   */
+  export type MpesaTransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * The data needed to create a MpesaTransaction.
+     */
+    data: XOR<MpesaTransactionCreateInput, MpesaTransactionUncheckedCreateInput>
+  }
+
+  /**
+   * MpesaTransaction createMany
+   */
+  export type MpesaTransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MpesaTransactions.
+     */
+    data: MpesaTransactionCreateManyInput | MpesaTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MpesaTransaction createManyAndReturn
+   */
+  export type MpesaTransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many MpesaTransactions.
+     */
+    data: MpesaTransactionCreateManyInput | MpesaTransactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MpesaTransaction update
+   */
+  export type MpesaTransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * The data needed to update a MpesaTransaction.
+     */
+    data: XOR<MpesaTransactionUpdateInput, MpesaTransactionUncheckedUpdateInput>
+    /**
+     * Choose, which MpesaTransaction to update.
+     */
+    where: MpesaTransactionWhereUniqueInput
+  }
+
+  /**
+   * MpesaTransaction updateMany
+   */
+  export type MpesaTransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MpesaTransactions.
+     */
+    data: XOR<MpesaTransactionUpdateManyMutationInput, MpesaTransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which MpesaTransactions to update
+     */
+    where?: MpesaTransactionWhereInput
+  }
+
+  /**
+   * MpesaTransaction upsert
+   */
+  export type MpesaTransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * The filter to search for the MpesaTransaction to update in case it exists.
+     */
+    where: MpesaTransactionWhereUniqueInput
+    /**
+     * In case the MpesaTransaction found by the `where` argument doesn't exist, create a new MpesaTransaction with this data.
+     */
+    create: XOR<MpesaTransactionCreateInput, MpesaTransactionUncheckedCreateInput>
+    /**
+     * In case the MpesaTransaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MpesaTransactionUpdateInput, MpesaTransactionUncheckedUpdateInput>
+  }
+
+  /**
+   * MpesaTransaction delete
+   */
+  export type MpesaTransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+    /**
+     * Filter which MpesaTransaction to delete.
+     */
+    where: MpesaTransactionWhereUniqueInput
+  }
+
+  /**
+   * MpesaTransaction deleteMany
+   */
+  export type MpesaTransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MpesaTransactions to delete
+     */
+    where?: MpesaTransactionWhereInput
+  }
+
+  /**
+   * MpesaTransaction without action
+   */
+  export type MpesaTransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MpesaTransaction
+     */
+    select?: MpesaTransactionSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5091,6 +6213,27 @@ export namespace Prisma {
   };
 
   export type RoomParticipantScalarFieldEnum = (typeof RoomParticipantScalarFieldEnum)[keyof typeof RoomParticipantScalarFieldEnum]
+
+
+  export const MpesaTransactionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    userName: 'userName',
+    phoneNumber: 'phoneNumber',
+    amount: 'amount',
+    accountReference: 'accountReference',
+    merchantRequestId: 'merchantRequestId',
+    checkoutRequestId: 'checkoutRequestId',
+    mpesaReceiptNumber: 'mpesaReceiptNumber',
+    transactionDate: 'transactionDate',
+    resultCode: 'resultCode',
+    resultDesc: 'resultDesc',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MpesaTransactionScalarFieldEnum = (typeof MpesaTransactionScalarFieldEnum)[keyof typeof MpesaTransactionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -5158,6 +6301,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -5168,6 +6325,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -5420,6 +6591,110 @@ export namespace Prisma {
     role?: StringWithAggregatesFilter<"RoomParticipant"> | string
     isAudioMuted?: BoolWithAggregatesFilter<"RoomParticipant"> | boolean
     isVideoPaused?: BoolWithAggregatesFilter<"RoomParticipant"> | boolean
+  }
+
+  export type MpesaTransactionWhereInput = {
+    AND?: MpesaTransactionWhereInput | MpesaTransactionWhereInput[]
+    OR?: MpesaTransactionWhereInput[]
+    NOT?: MpesaTransactionWhereInput | MpesaTransactionWhereInput[]
+    id?: StringFilter<"MpesaTransaction"> | string
+    userId?: StringFilter<"MpesaTransaction"> | string
+    userName?: StringNullableFilter<"MpesaTransaction"> | string | null
+    phoneNumber?: StringFilter<"MpesaTransaction"> | string
+    amount?: DecimalFilter<"MpesaTransaction"> | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFilter<"MpesaTransaction"> | string
+    merchantRequestId?: StringNullableFilter<"MpesaTransaction"> | string | null
+    checkoutRequestId?: StringNullableFilter<"MpesaTransaction"> | string | null
+    mpesaReceiptNumber?: StringNullableFilter<"MpesaTransaction"> | string | null
+    transactionDate?: DateTimeNullableFilter<"MpesaTransaction"> | Date | string | null
+    resultCode?: IntNullableFilter<"MpesaTransaction"> | number | null
+    resultDesc?: StringNullableFilter<"MpesaTransaction"> | string | null
+    status?: StringFilter<"MpesaTransaction"> | string
+    createdAt?: DateTimeFilter<"MpesaTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"MpesaTransaction"> | Date | string
+  }
+
+  export type MpesaTransactionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    userName?: SortOrderInput | SortOrder
+    phoneNumber?: SortOrder
+    amount?: SortOrder
+    accountReference?: SortOrder
+    merchantRequestId?: SortOrderInput | SortOrder
+    checkoutRequestId?: SortOrderInput | SortOrder
+    mpesaReceiptNumber?: SortOrderInput | SortOrder
+    transactionDate?: SortOrderInput | SortOrder
+    resultCode?: SortOrderInput | SortOrder
+    resultDesc?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MpesaTransactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    merchantRequestId?: string
+    checkoutRequestId?: string
+    AND?: MpesaTransactionWhereInput | MpesaTransactionWhereInput[]
+    OR?: MpesaTransactionWhereInput[]
+    NOT?: MpesaTransactionWhereInput | MpesaTransactionWhereInput[]
+    userId?: StringFilter<"MpesaTransaction"> | string
+    userName?: StringNullableFilter<"MpesaTransaction"> | string | null
+    phoneNumber?: StringFilter<"MpesaTransaction"> | string
+    amount?: DecimalFilter<"MpesaTransaction"> | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFilter<"MpesaTransaction"> | string
+    mpesaReceiptNumber?: StringNullableFilter<"MpesaTransaction"> | string | null
+    transactionDate?: DateTimeNullableFilter<"MpesaTransaction"> | Date | string | null
+    resultCode?: IntNullableFilter<"MpesaTransaction"> | number | null
+    resultDesc?: StringNullableFilter<"MpesaTransaction"> | string | null
+    status?: StringFilter<"MpesaTransaction"> | string
+    createdAt?: DateTimeFilter<"MpesaTransaction"> | Date | string
+    updatedAt?: DateTimeFilter<"MpesaTransaction"> | Date | string
+  }, "id" | "merchantRequestId" | "checkoutRequestId">
+
+  export type MpesaTransactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    userName?: SortOrderInput | SortOrder
+    phoneNumber?: SortOrder
+    amount?: SortOrder
+    accountReference?: SortOrder
+    merchantRequestId?: SortOrderInput | SortOrder
+    checkoutRequestId?: SortOrderInput | SortOrder
+    mpesaReceiptNumber?: SortOrderInput | SortOrder
+    transactionDate?: SortOrderInput | SortOrder
+    resultCode?: SortOrderInput | SortOrder
+    resultDesc?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MpesaTransactionCountOrderByAggregateInput
+    _avg?: MpesaTransactionAvgOrderByAggregateInput
+    _max?: MpesaTransactionMaxOrderByAggregateInput
+    _min?: MpesaTransactionMinOrderByAggregateInput
+    _sum?: MpesaTransactionSumOrderByAggregateInput
+  }
+
+  export type MpesaTransactionScalarWhereWithAggregatesInput = {
+    AND?: MpesaTransactionScalarWhereWithAggregatesInput | MpesaTransactionScalarWhereWithAggregatesInput[]
+    OR?: MpesaTransactionScalarWhereWithAggregatesInput[]
+    NOT?: MpesaTransactionScalarWhereWithAggregatesInput | MpesaTransactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MpesaTransaction"> | string
+    userId?: StringWithAggregatesFilter<"MpesaTransaction"> | string
+    userName?: StringNullableWithAggregatesFilter<"MpesaTransaction"> | string | null
+    phoneNumber?: StringWithAggregatesFilter<"MpesaTransaction"> | string
+    amount?: DecimalWithAggregatesFilter<"MpesaTransaction"> | Decimal | DecimalJsLike | number | string
+    accountReference?: StringWithAggregatesFilter<"MpesaTransaction"> | string
+    merchantRequestId?: StringNullableWithAggregatesFilter<"MpesaTransaction"> | string | null
+    checkoutRequestId?: StringNullableWithAggregatesFilter<"MpesaTransaction"> | string | null
+    mpesaReceiptNumber?: StringNullableWithAggregatesFilter<"MpesaTransaction"> | string | null
+    transactionDate?: DateTimeNullableWithAggregatesFilter<"MpesaTransaction"> | Date | string | null
+    resultCode?: IntNullableWithAggregatesFilter<"MpesaTransaction"> | number | null
+    resultDesc?: StringNullableWithAggregatesFilter<"MpesaTransaction"> | string | null
+    status?: StringWithAggregatesFilter<"MpesaTransaction"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"MpesaTransaction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MpesaTransaction"> | Date | string
   }
 
   export type MessageCreateInput = {
@@ -5681,6 +6956,132 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     isAudioMuted?: BoolFieldUpdateOperationsInput | boolean
     isVideoPaused?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type MpesaTransactionCreateInput = {
+    id?: string
+    userId: string
+    userName?: string | null
+    phoneNumber: string
+    amount: Decimal | DecimalJsLike | number | string
+    accountReference: string
+    merchantRequestId?: string | null
+    checkoutRequestId?: string | null
+    mpesaReceiptNumber?: string | null
+    transactionDate?: Date | string | null
+    resultCode?: number | null
+    resultDesc?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MpesaTransactionUncheckedCreateInput = {
+    id?: string
+    userId: string
+    userName?: string | null
+    phoneNumber: string
+    amount: Decimal | DecimalJsLike | number | string
+    accountReference: string
+    merchantRequestId?: string | null
+    checkoutRequestId?: string | null
+    mpesaReceiptNumber?: string | null
+    transactionDate?: Date | string | null
+    resultCode?: number | null
+    resultDesc?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MpesaTransactionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFieldUpdateOperationsInput | string
+    merchantRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpesaReceiptNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resultCode?: NullableIntFieldUpdateOperationsInput | number | null
+    resultDesc?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MpesaTransactionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFieldUpdateOperationsInput | string
+    merchantRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpesaReceiptNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resultCode?: NullableIntFieldUpdateOperationsInput | number | null
+    resultDesc?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MpesaTransactionCreateManyInput = {
+    id?: string
+    userId: string
+    userName?: string | null
+    phoneNumber: string
+    amount: Decimal | DecimalJsLike | number | string
+    accountReference: string
+    merchantRequestId?: string | null
+    checkoutRequestId?: string | null
+    mpesaReceiptNumber?: string | null
+    transactionDate?: Date | string | null
+    resultCode?: number | null
+    resultDesc?: string | null
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MpesaTransactionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFieldUpdateOperationsInput | string
+    merchantRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpesaReceiptNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resultCode?: NullableIntFieldUpdateOperationsInput | number | null
+    resultDesc?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MpesaTransactionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    userName?: NullableStringFieldUpdateOperationsInput | string | null
+    phoneNumber?: StringFieldUpdateOperationsInput | string
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    accountReference?: StringFieldUpdateOperationsInput | string
+    merchantRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    checkoutRequestId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpesaReceiptNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resultCode?: NullableIntFieldUpdateOperationsInput | number | null
+    resultDesc?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -5955,6 +7356,149 @@ export namespace Prisma {
     isVideoPaused?: SortOrder
   }
 
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type MpesaTransactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    userName?: SortOrder
+    phoneNumber?: SortOrder
+    amount?: SortOrder
+    accountReference?: SortOrder
+    merchantRequestId?: SortOrder
+    checkoutRequestId?: SortOrder
+    mpesaReceiptNumber?: SortOrder
+    transactionDate?: SortOrder
+    resultCode?: SortOrder
+    resultDesc?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MpesaTransactionAvgOrderByAggregateInput = {
+    amount?: SortOrder
+    resultCode?: SortOrder
+  }
+
+  export type MpesaTransactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    userName?: SortOrder
+    phoneNumber?: SortOrder
+    amount?: SortOrder
+    accountReference?: SortOrder
+    merchantRequestId?: SortOrder
+    checkoutRequestId?: SortOrder
+    mpesaReceiptNumber?: SortOrder
+    transactionDate?: SortOrder
+    resultCode?: SortOrder
+    resultDesc?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MpesaTransactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    userName?: SortOrder
+    phoneNumber?: SortOrder
+    amount?: SortOrder
+    accountReference?: SortOrder
+    merchantRequestId?: SortOrder
+    checkoutRequestId?: SortOrder
+    mpesaReceiptNumber?: SortOrder
+    transactionDate?: SortOrder
+    resultCode?: SortOrder
+    resultDesc?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MpesaTransactionSumOrderByAggregateInput = {
+    amount?: SortOrder
+    resultCode?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type MessageCreateNestedOneWithoutRepliesInput = {
     create?: XOR<MessageCreateWithoutRepliesInput, MessageUncheckedCreateWithoutRepliesInput>
     connectOrCreate?: MessageCreateOrConnectWithoutRepliesInput
@@ -6141,6 +7685,26 @@ export namespace Prisma {
     update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutParticipantsInput, RoomUpdateWithoutParticipantsInput>, RoomUncheckedUpdateWithoutParticipantsInput>
   }
 
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -6261,6 +7825,85 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type MessageCreateWithoutRepliesInput = {
@@ -6755,6 +8398,10 @@ export namespace Prisma {
      * @deprecated Use RoomParticipantDefaultArgs instead
      */
     export type RoomParticipantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RoomParticipantDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use MpesaTransactionDefaultArgs instead
+     */
+    export type MpesaTransactionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MpesaTransactionDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
