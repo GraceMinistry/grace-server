@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -9,10 +10,14 @@ import {
   createWebRtcTransport,
   removePeerFromRoom,
 } from "./mediasoup/rooms";
+import mpesaRoutes from "./mpesa/mpesa.routes";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// M-Pesa API routes
+app.use("/api/mpesa", mpesaRoutes);
 
 // Debug endpoint to inspect room state
 app.get("/debug/room/:roomId", async (req, res) => {

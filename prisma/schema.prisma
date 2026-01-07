@@ -68,3 +68,25 @@ model RoomParticipant {
 
   @@unique([roomId, userId])
 }
+
+model MpesaTransaction {
+  id                  String   @id @default(uuid())
+  userId              String   // Clerk User ID
+  userName            String?  // User name from Clerk or M-Pesa
+  phoneNumber         String
+  amount              Decimal  @db.Decimal(10, 2)
+  accountReference    String   // Selected account/purpose
+  merchantRequestId   String?  @unique
+  checkoutRequestId   String?  @unique
+  mpesaReceiptNumber  String?
+  transactionDate     DateTime?
+  resultCode          Int?
+  resultDesc          String?
+  status              String   @default("PENDING") // PENDING, SUCCESS, FAILED, CANCELLED
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([phoneNumber])
+  @@index([status])
+}

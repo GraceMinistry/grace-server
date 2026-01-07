@@ -158,6 +158,24 @@ exports.Prisma.RoomParticipantScalarFieldEnum = {
   isVideoPaused: 'isVideoPaused'
 };
 
+exports.Prisma.MpesaTransactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  userName: 'userName',
+  phoneNumber: 'phoneNumber',
+  amount: 'amount',
+  accountReference: 'accountReference',
+  merchantRequestId: 'merchantRequestId',
+  checkoutRequestId: 'checkoutRequestId',
+  mpesaReceiptNumber: 'mpesaReceiptNumber',
+  transactionDate: 'transactionDate',
+  resultCode: 'resultCode',
+  resultDesc: 'resultDesc',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -178,7 +196,8 @@ exports.Prisma.ModelName = {
   Message: 'Message',
   Reaction: 'Reaction',
   Room: 'Room',
-  RoomParticipant: 'RoomParticipant'
+  RoomParticipant: 'RoomParticipant',
+  MpesaTransaction: 'MpesaTransaction'
 };
 
 /**
