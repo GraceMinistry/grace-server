@@ -4,6 +4,66 @@ import { mpesaService } from "./mpesa.service";
 
 const router = Router();
 
+// Test endpoint to verify callback URL is reachable
+router.get("/callback-test", (req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: "Callback endpoint is reachable",
+    timestamp: new Date().toISOString(),
+  });
+});
+/**
+ * POST /api/mpesa/register-urls
+ * Register callback URLs with Safaricom (C2B API)
+ * This must be called to enable callbacks to work
+ */
+router.post("/register-urls", async (req: Request, res: Response) => {
+  try {
+    const baseUrl =
+      process.env.MPESA_CALLBACK_URL?.replace("/api/mpesa/callback", "") ||
+      "https://grace-server-production.up.railway.app";
+
+    const validationUrl = `${baseUrl}/api/mpesa/validation`;
+    const confirmationUrl = `${baseUrl}/api/mpesa/callback`;
+
+    console.log(`📝 Registering URLs with Safaricom:
+    - Validation: ${validationUrl}
+    - Confirmation: ${confirmationUrl}`);
+
+    const result = await mpesaService.registerC2BUrls(
+      validationUrl,
+      confirmationUrl
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "URLs registered successfully with Safaricom",
+      data: result,
+    });
+  } catch (error: any) {
+    console.error("❌ URL Registration Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to register URLs",
+    });
+  }
+});
+
+/**
+ * POST /api/mpesa/validation
+ * M-Pesa validation endpoint (required for C2B)
+ */
+router.post("/validation", (req: Request, res: Response) => {
+  console.log(
+    "✅ Validation request received:",
+    JSON.stringify(req.body, null, 2)
+  );
+  // Accept all transactions
+  res.status(200).json({
+    ResultCode: 0,
+    ResultDesc: "Accepted",
+  });
+});
 // Temporary storage for pending transactions (before callback confirmation)
 // In production, consider using Redis for distributed systems
 const pendingTransactions = new Map<
@@ -241,6 +301,65 @@ router.get(
       const pendingTxn = pendingTransactions.get(checkoutRequestId);
 
       if (pendingTxn) {
+        // Query M-Pesa directly if no callback received after 30 seconds
+        const timeSinceInitiation =
+          Date.now() - pendingTxn.initiatedAt.getTime();
+
+        if (timeSinceInitiation > 30000) {
+          // 30 seconds passed, query M-Pesa API
+          console.log(`⏰ 30s elapsed, querying M-Pesa API directly...`);
+
+          try {
+            const queryResult = await mpesaService.stkQuery(checkoutRequestId);
+            console.log(
+              `📊 M-Pesa Query Result:`,
+              JSON.stringify(queryResult, null, 2)
+            );
+
+            // Check if payment was successful
+            if (queryResult.ResultCode === "0") {
+              // Payment successful - save to DB
+              const transaction = await prisma.mpesaTransaction.create({
+                data: {
+                  userId: pendingTxn.userId,
+                  userName: pendingTxn.userName,
+                  phoneNumber: pendingTxn.phoneNumber,
+                  amount: pendingTxn.amount,
+                  accountReference: pendingTxn.accountReference,
+                  merchantRequestId: pendingTxn.merchantRequestId,
+                  checkoutRequestId: checkoutRequestId,
+                  mpesaReceiptNumber: null, // Query doesn't return receipt
+                  transactionDate: null,
+                  resultCode: parseInt(queryResult.ResultCode),
+                  resultDesc: queryResult.ResultDesc || "Success",
+                  status: "SUCCESS",
+                },
+              });
+
+              pendingTransactions.delete(checkoutRequestId);
+              console.log(`✅ Payment confirmed via query - saved to DB`);
+
+              return res.status(200).json({
+                success: true,
+                status: "SUCCESS",
+                data: transaction,
+              });
+            } else if (queryResult.ResultCode === "1032") {
+              // User cancelled
+              pendingTransactions.delete(checkoutRequestId);
+              console.log(`❌ Payment cancelled by user`);
+
+              return res.status(200).json({
+                success: false,
+                status: "CANCELLED",
+                message: "Payment was cancelled",
+              });
+            }
+          } catch (queryError: any) {
+            console.error(`❌ M-Pesa query failed:`, queryError.message);
+          }
+        }
+
         // Still waiting for user to complete payment
         console.log(`⏳ Still pending - waiting for callback`);
         return res.status(200).json({
