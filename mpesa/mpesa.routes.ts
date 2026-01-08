@@ -13,57 +13,9 @@ router.get("/callback-test", (req: Request, res: Response) => {
   });
 });
 /**
- * POST /api/mpesa/register-urls
- * Register callback URLs with Safaricom (C2B API)
- * This must be called to enable callbacks to work
+ * NOTE: C2B URL registration is NOT needed for STK Push
+ * STK Push includes the callback URL in each request automatically
  */
-router.post("/register-urls", async (req: Request, res: Response) => {
-  try {
-    const baseUrl =
-      process.env.MPESA_CALLBACK_URL?.replace("/api/mpesa/callback", "") ||
-      "https://grace-server-production.up.railway.app";
-
-    const validationUrl = `${baseUrl}/api/mpesa/validation`;
-    const confirmationUrl = `${baseUrl}/api/mpesa/callback`;
-
-    console.log(`📝 Registering URLs with Safaricom:
-    - Validation: ${validationUrl}
-    - Confirmation: ${confirmationUrl}`);
-
-    const result = await mpesaService.registerC2BUrls(
-      validationUrl,
-      confirmationUrl
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "URLs registered successfully with Safaricom",
-      data: result,
-    });
-  } catch (error: any) {
-    console.error("❌ URL Registration Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Failed to register URLs",
-    });
-  }
-});
-
-/**
- * POST /api/mpesa/validation
- * M-Pesa validation endpoint (required for C2B)
- */
-router.post("/validation", (req: Request, res: Response) => {
-  console.log(
-    "✅ Validation request received:",
-    JSON.stringify(req.body, null, 2)
-  );
-  // Accept all transactions
-  res.status(200).json({
-    ResultCode: 0,
-    ResultDesc: "Accepted",
-  });
-});
 // Temporary storage for pending transactions (before callback confirmation)
 // In production, consider using Redis for distributed systems
 const pendingTransactions = new Map<
@@ -180,20 +132,109 @@ router.post("/callback", async (req: Request, res: Response) => {
     } = Body.stkCallback;
 
     // Get pending transaction details
-    const pendingTxn = pendingTransactions.get(CheckoutRequestID);
+    let pendingTxn = pendingTransactions.get(CheckoutRequestID);
 
     console.log(`🔍 Looking for pending transaction: ${CheckoutRequestID}`);
     console.log(
       `📦 Pending transactions map size: ${pendingTransactions.size}`
     );
-    console.log(`📋 Pending transaction found:`, pendingTxn ? "YES" : "NO");
+    console.log(
+      `📋 Pending transaction found in memory:`,
+      pendingTxn ? "YES" : "NO"
+    );
 
+    // If not in memory, check if already in database
     if (!pendingTxn) {
-      console.warn("⚠️ Pending transaction not found:", CheckoutRequestID);
+      const existingTransaction = await prisma.mpesaTransaction.findUnique({
+        where: { checkoutRequestId: CheckoutRequestID },
+      });
+
+      if (existingTransaction && ResultCode === 0) {
+        // Transaction exists but might be missing receipt from query
+        // Update it with callback data
+        const metadata = CallbackMetadata?.Item || [];
+        const mpesaReceiptNumber = metadata.find(
+          (item: any) => item.Name === "MpesaReceiptNumber"
+        )?.Value;
+        const transactionDate = metadata.find(
+          (item: any) => item.Name === "TransactionDate"
+        )?.Value;
+
+        if (mpesaReceiptNumber || transactionDate) {
+          await prisma.mpesaTransaction.update({
+            where: { checkoutRequestId: CheckoutRequestID },
+            data: {
+              mpesaReceiptNumber:
+                mpesaReceiptNumber || existingTransaction.mpesaReceiptNumber,
+              transactionDate: transactionDate
+                ? new Date(String(transactionDate))
+                : existingTransaction.transactionDate,
+            },
+          });
+          console.log(
+            `✅ Updated transaction with receipt: ${mpesaReceiptNumber}`
+          );
+        } else {
+          console.log("✅ Transaction already in DB, no new data to update");
+        }
+
+        return res.status(200).json({ ResultCode: 0, ResultDesc: "Success" });
+      } else if (existingTransaction) {
+        console.log("✅ Transaction already in DB (failed/cancelled)");
+        return res.status(200).json({ ResultCode: 0, ResultDesc: "Success" });
+      }
+
+      console.warn(
+        "⚠️ Pending transaction not found in memory:",
+        CheckoutRequestID
+      );
       console.warn(
         "⚠️ Available transactions:",
         Array.from(pendingTransactions.keys())
       );
+
+      // Still process the callback even without pending transaction
+      // Use phone number from callback as identifier
+      if (ResultCode === 0) {
+        const metadata = CallbackMetadata?.Item || [];
+        const mpesaReceiptNumber = metadata.find(
+          (item: any) => item.Name === "MpesaReceiptNumber"
+        )?.Value;
+        const transactionDate = metadata.find(
+          (item: any) => item.Name === "TransactionDate"
+        )?.Value;
+        const mpesaPhoneNumber = metadata.find(
+          (item: any) => item.Name === "PhoneNumber"
+        )?.Value;
+        const paidAmount = metadata.find(
+          (item: any) => item.Name === "Amount"
+        )?.Value;
+
+        // Save without userId (will be updated later if needed)
+        await prisma.mpesaTransaction.create({
+          data: {
+            userId: "UNKNOWN",
+            userName: null,
+            phoneNumber: String(mpesaPhoneNumber),
+            amount: paidAmount || 0,
+            accountReference: "UNKNOWN",
+            merchantRequestId: MerchantRequestID,
+            checkoutRequestId: CheckoutRequestID,
+            mpesaReceiptNumber,
+            transactionDate: transactionDate
+              ? new Date(String(transactionDate))
+              : null,
+            resultCode: ResultCode,
+            resultDesc: ResultDesc,
+            status: "SUCCESS",
+          },
+        });
+
+        console.log(
+          `✅ Payment saved without pending txn - Receipt: ${mpesaReceiptNumber}`
+        );
+      }
+
       return res.status(200).json({ ResultCode: 0, ResultDesc: "Success" });
     }
 
@@ -293,7 +334,16 @@ router.get(
         return res.status(200).json({
           success: true,
           status: "SUCCESS",
-          data: transaction,
+          data: {
+            id: transaction.id,
+            mpesaReceiptNumber: transaction.mpesaReceiptNumber,
+            phoneNumber: transaction.phoneNumber,
+            amount: transaction.amount,
+            transactionDate: transaction.transactionDate,
+            userId: transaction.userId,
+            userName: transaction.userName,
+            accountReference: transaction.accountReference,
+          },
         });
       }
 
@@ -342,7 +392,16 @@ router.get(
               return res.status(200).json({
                 success: true,
                 status: "SUCCESS",
-                data: transaction,
+                data: {
+                  id: transaction.id,
+                  mpesaReceiptNumber: transaction.mpesaReceiptNumber,
+                  phoneNumber: transaction.phoneNumber,
+                  amount: transaction.amount,
+                  transactionDate: transaction.transactionDate,
+                  userId: transaction.userId,
+                  userName: transaction.userName,
+                  accountReference: transaction.accountReference,
+                },
               });
             } else if (queryResult.ResultCode === "1032") {
               // User cancelled
