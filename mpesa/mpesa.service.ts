@@ -173,6 +173,49 @@ export class MpesaService {
       throw new Error("STK Query failed");
     }
   }
+
+  /**
+   * Register C2B URLs (Validation and Confirmation URLs)
+   */
+  async registerC2BUrls(
+    validationUrl: string,
+    confirmationUrl: string
+  ): Promise<any> {
+    const accessToken = await this.getAccessToken();
+
+    const payload = {
+      ShortCode: this.config.shortCode,
+      ResponseType: "Completed", // or "Cancelled"
+      ConfirmationURL: confirmationUrl,
+      ValidationURL: validationUrl,
+    };
+
+    try {
+      console.log("📝 Registering C2B URLs:", JSON.stringify(payload, null, 2));
+      const response = await axios.post(
+        `${this.baseUrl}/mpesa/c2b/v1/registerurl`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(
+        "✅ C2B URLs registered:",
+        JSON.stringify(response.data, null, 2)
+      );
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "❌ C2B Registration Error:",
+        JSON.stringify(error.response?.data || error.message, null, 2)
+      );
+      throw new Error("C2B URL registration failed");
+    }
+  }
 }
 
 // Initialize M-Pesa service with environment variables
