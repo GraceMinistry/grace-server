@@ -36,7 +36,9 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/mpesa/initiate", {
+      const apiUrl =
+        process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080";
+      const response = await fetch(`${apiUrl}/api/mpesa/initiate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,8 +81,10 @@ export const MpesaPaymentModal: React.FC<MpesaPaymentModalProps> = ({
 
     const checkStatus = async () => {
       try {
+        const apiUrl =
+          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080";
         const response = await fetch(
-          `http://localhost:8080/api/mpesa/status/${checkoutReqId}`
+          `${apiUrl}/api/mpesa/status/${checkoutReqId}`
         );
         const data = await response.json();
 
