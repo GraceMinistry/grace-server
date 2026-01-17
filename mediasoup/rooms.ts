@@ -105,7 +105,9 @@ export const getRoom = (roomId: string) => rooms.get(roomId);
  * Creates the server-side transport for a peer to send or receive audio.
  */
 export const createWebRtcTransport = async (router: Router) => {
-  const announcedIp = process.env.RAILWAY_PUBLIC_DOMAIN || "127.0.0.1";
+  // Use PUBLIC_IP for VPS deployments (DigitalOcean, Vultr, AWS EC2)
+  // Set this environment variable to your server's public IP address
+  const announcedIp = process.env.PUBLIC_IP || process.env.ANNOUNCED_IP || "127.0.0.1";
   console.log(`🌐 Creating transport with announcedIp: ${announcedIp}`);
 
   const transport = await router.createWebRtcTransport({
